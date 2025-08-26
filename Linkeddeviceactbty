@@ -1,0 +1,21 @@
+class MyLinkedDevicesActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_my_linked_devices)
+
+        val rv = findViewById<RecyclerView>(R.id.rvDevices)
+        val devices = listOf(
+            Device("1","MH-02-Dx-xxxx","Device Type : Car Dashboard","Vehicle : Honda Amaze",
+                "SBI Bank- **** 8256","device1710@sbibank", R.drawable.ic_car, R.drawable.ic_bank_sbi),
+            Device("2","Sony Bravia XR","Device Type : Smart TV","Model : Bravia XR 55X90L",
+                "ICICI Bank- **** 6786","device1222@icicibank", R.drawable.ic_tv, R.drawable.ic_bank_icici),
+            Device("3","Boat Max","Device Type : Smart Watch","Model : Ultima Call Pro",
+                "SBI Bank- **** 8256","device1995@sbibank", R.drawable.ic_watch, R.drawable.ic_bank_sbi)
+        )
+
+        rv.adapter = DeviceAdapter(devices) { device, view ->
+            showDeviceMenu(device, view)
+        }
+    }
+}
