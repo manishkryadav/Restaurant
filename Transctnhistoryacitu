@@ -1,0 +1,49 @@
+class TransactionHistoryActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_transaction_history)
+
+        // Toolbar setup
+        val toolbar: MaterialToolbar = findViewById(R.id.toolbarTxn)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener { finish() }
+
+        // RecyclerView for transactions
+        val rvTxns = findViewById<RecyclerView>(R.id.rvTxns)
+
+        // Fake transactions (mock data)
+        val txns = listOf(
+            Transaction(
+                title = "Netflix Subscription",
+                vpa = "Bharat3423435@mybank",
+                amount = 7788.0,
+                isCredit = false,
+                dateTime = "Today, 10.45 AM"
+            ),
+            Transaction(
+                title = "Jio Air Fibre",
+                vpa = "15426235234@mybank",
+                amount = 780.0,
+                isCredit = false,
+                dateTime = "10 Aug, 02.34 PM"
+            ),
+            Transaction(
+                title = "Device Recharge",
+                vpa = "device1222@icicibank",
+                amount = 5000.0,
+                isCredit = true,
+                dateTime = "27 July, 10.45 AM"
+            )
+        )
+
+        rvTxns.adapter = TransactionAdapter(txns)
+
+        // "View More" click
+        val tvViewMore: TextView = findViewById(R.id.tvViewMore)
+        tvViewMore.setOnClickListener {
+            Toast.makeText(this, "Load more transactions…", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
