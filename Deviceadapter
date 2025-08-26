@@ -1,0 +1,38 @@
+class DeviceAdapter(
+    private val items: List<Device>,
+    private val onMenuClick: (Device, View) -> Unit
+) : RecyclerView.Adapter<DeviceAdapter.DeviceVH>() {
+
+    inner class DeviceVH(val view: View) : RecyclerView.ViewHolder(view) {
+        val ivIcon: ImageView = view.findViewById(R.id.ivDeviceIcon)
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+        val tvSubtitle1: TextView = view.findViewById(R.id.tvSubtitle1)
+        val tvSubtitle2: TextView = view.findViewById(R.id.tvSubtitle2)
+        val tvBank: TextView = view.findViewById(R.id.tvBank)
+        val tvVpa: TextView = view.findViewById(R.id.tvVpa)
+        val ivBank: ImageView = view.findViewById(R.id.ivCopy)
+        val btnMenu: ImageButton = view.findViewById(R.id.btnMenu)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceVH {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_device_card, parent, false)
+        return DeviceVH(v)
+    }
+
+    override fun onBindViewHolder(holder: DeviceVH, position: Int) {
+        val item = items[position]
+        holder.ivIcon.setImageResource(item.iconRes)
+        holder.tvTitle.text = item.title
+        holder.tvSubtitle1.text = item.subtitle1
+        holder.tvSubtitle2.text = item.subtitle2
+        holder.tvBank.text = item.bankName
+        holder.tvVpa.text = item.vpa
+
+        holder.btnMenu.setOnClickListener {
+            onMenuClick(item, holder.btnMenu)
+        }
+    }
+
+    override fun getItemCount() = items.size
+}
