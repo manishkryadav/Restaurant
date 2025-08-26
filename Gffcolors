@@ -1,0 +1,14 @@
+<!-- res/values/colors.xml -->
+<resources>
+    <color name="brand_indigo">#17113B</color>
+    <color name="bg_surface">#EFEFFF</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="bank_row_bg">#FFF6DE</color>
+    <color name="chip_green">#19B36B</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#6B6B6B</color>
+    <color name="divider">#12000000</color>
+    <color name="debit_red">#D33C3C</color>
+    <color name="credit_green">#21A67A</color>
+    <color name="link_blue">#2F6BFF</color>
+</resources>
