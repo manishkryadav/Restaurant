@@ -1,0 +1,10 @@
+data class Device(
+    val id: String,
+    val title: String,
+    val subtitle1: String,
+    val subtitle2: String,
+    val bankName: String,
+    val vpa: String,
+    val iconRes: Int,
+    val bankIconRes: Int
+)
