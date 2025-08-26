@@ -1,0 +1,6 @@
+<!-- res/menu/menu_device_card.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_modify_limits" android:title="Modify Limits"/>
+    <item android:id="@+id/action_txn_history" android:title="Transaction History"/>
+    <item android:id="@+id/action_deregister" android:title="De-register Device"/>
+</menu>
