@@ -1,0 +1,80 @@
+package your.package.name
+
+import android.app.DatePickerDialog
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
+class ModifyLimitActivity : AppCompatActivity() {
+
+    private lateinit var etAmount: TextInputEditText
+    private lateinit var tilAmount: TextInputLayout
+    private lateinit var etDate: TextInputEditText
+    private lateinit var btnProceed: MaterialButton
+
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_modify_limit)
+
+        // Toolbar
+        findViewById<MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        }
+
+        etAmount = findViewById(R.id.etAmount)
+        tilAmount = findViewById(R.id.tilAmount)
+        etDate = findViewById(R.id.etDate)
+        btnProceed = findViewById(R.id.btnProceed)
+
+        // Pre-fill default date (today + 6 months, adjust as you want)
+        val cal = Calendar.getInstance().apply { add(Calendar.MONTH, 6) }
+        etDate.setText(sdf.format(cal.time))
+
+        // Date picker on field and end icon
+        val openPicker = {
+            val now = Calendar.getInstance()
+            DatePickerDialog(
+                this,
+                { _, y, m, d ->
+                    val picked = Calendar.getInstance().apply { set(y, m, d, 0, 0, 0) }
+                    etDate.setText(sdf.format(picked.time))
+                },
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH),
+                now.get(Calendar.DAY_OF_MONTH)
+            ).apply {
+                // Optional: don't allow past dates
+                datePicker.minDate = System.currentTimeMillis()
+                show()
+            }
+        }
+        etDate.setOnClickListener { openPicker() }
+        findViewById<TextInputLayout>(R.id.tilDate).setEndIconOnClickListener { openPicker() }
+
+        // Proceed click
+        btnProceed.setOnClickListener {
+            val amountStr = etAmount.text?.toString()?.trim().orEmpty()
+            val dateStr = etDate.text?.toString()?.trim().orEmpty()
+
+            if (amountStr.isEmpty()) {
+                tilAmount.error = "Please enter an amount"
+                return@setOnClickListener
+            } else {
+                tilAmount.error = null
+            }
+
+            // TODO: Submit amount and date to your backend or next screen
+            // For demo, simply finish:
+            setResult(RESULT_OK)
+            finish()
+        }
+    }
+}
