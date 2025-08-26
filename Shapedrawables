@@ -1,0 +1,11 @@
+<!-- res/drawable/bg_bank_row.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/bank_row_bg"/>
+    <corners android:radius="12dp"/>
+</shape>
+
+<!-- res/drawable/bg_chip_verified.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#E9FAF2"/>
+    <corners android:radius="999dp"/>
+</shape>
