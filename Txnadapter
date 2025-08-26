@@ -1,0 +1,39 @@
+class TransactionAdapter(private val txns: List<Transaction>) :
+    RecyclerView.Adapter<TransactionAdapter.TxnVH>() {
+
+    inner class TxnVH(v: View) : RecyclerView.ViewHolder(v) {
+        val ivDir: ImageView = v.findViewById(R.id.ivDir)
+        val tvTitle: TextView = v.findViewById(R.id.tvTxnTitle)
+        val tvVpa: TextView = v.findViewById(R.id.tvVpaRow)
+        val tvAmount: TextView = v.findViewById(R.id.tvAmount)
+        val tvWhen: TextView = v.findViewById(R.id.tvWhen)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TxnVH {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_transaction, parent, false)
+        return TxnVH(v)
+    }
+
+    override fun onBindViewHolder(holder: TxnVH, position: Int) {
+        val txn = txns[position]
+        holder.tvTitle.text = txn.title
+        holder.tvVpa.text = txn.vpa
+        holder.tvWhen.text = txn.dateTime
+
+        holder.tvAmount.text = "₹${txn.amount}"
+        if (txn.isCredit) {
+            holder.tvAmount.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.credit_green)
+            )
+            holder.ivDir.setImageResource(R.drawable.ic_arrow_downward)
+        } else {
+            holder.tvAmount.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.debit_red)
+            )
+            holder.ivDir.setImageResource(R.drawable.ic_arrow_upward)
+        }
+    }
+
+    override fun getItemCount() = txns.size
+}
