@@ -1,0 +1,11 @@
+<!-- res/values/dimens.xml -->
+<resources>
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="card_radius">16dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="icon_20">20dp</dimen>
+    <dimen name="icon_24">24dp</dimen>
+</resources>
