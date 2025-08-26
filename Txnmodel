@@ -1,0 +1,7 @@
+data class Transaction(
+    val title: String,
+    val vpa: String,
+    val amount: Double,
+    val isCredit: Boolean,
+    val dateTime: String
+)
