@@ -1,0 +1,29 @@
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
+
+@Override
+public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
+    boolean isExpanded = position == expandedPosition;
+    TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
+    holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+    holder.btnMenu.setOnClickListener(v -> {
+        int oldExpanded = expandedPosition;
+        if (isExpanded) {
+            expandedPosition = -1;
+            notifyItemChanged(position);
+        } else {
+            expandedPosition = position;
+            notifyItemChanged(oldExpanded);
+            notifyItemChanged(position);
+        }
+    });
+
+    // prevent duplicate child views
+    holder.ll_childview.removeAllViews();
+    for (int i = 0; i < 4; i++) {
+        LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
+                .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
+        holder.ll_childview.addView(childLayout);
+    }
+}
