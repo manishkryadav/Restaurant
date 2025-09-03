@@ -1,31 +1,95 @@
-@Override
-public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
-    boolean isExpanded = position == expandedPosition;
+package com.sbi.upi.customerMode.modules.iot;
 
-    // Animate expand/collapse
-    TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
-    holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+import android.content.Context;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-    // Rotate icon smoothly
-    holder.btnMenu.setRotation(isExpanded ? 180f : 0f);
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-    holder.btnMenu.setOnClickListener(v -> {
-        int oldExpanded = expandedPosition;
-        if (isExpanded) {
-            expandedPosition = -1;
-            notifyItemChanged(position);
-        } else {
-            expandedPosition = position;
-            notifyItemChanged(oldExpanded);
-            notifyItemChanged(position);
+import com.sbi.upi.R;
+import com.sbi.upi.customerMode.common.data.models.response.banking.AccountDetail;
+
+import java.util.List;
+
+public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.AccountViewHolder> {
+
+    private List<AccountDetail> accountList;
+    private Context context;
+
+    // Track expanded item
+    private int expandedPosition = -1;
+
+    public HistoryIOTAdapter(Context context, List<AccountDetail> accountList) {
+        this.context = context;
+        this.accountList = accountList;
+    }
+
+    @NonNull
+    @Override
+    public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.revamp_item_iothistory, parent, false);
+        return new AccountViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
+        boolean isExpanded = position == expandedPosition;
+
+        // Animate expand/collapse
+        TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
+        holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+        // Rotate icon smoothly
+        holder.btnMenu.setRotation(isExpanded ? 180f : 0f);
+
+        holder.btnMenu.setOnClickListener(v -> {
+            int oldExpanded = expandedPosition;
+            if (isExpanded) {
+                expandedPosition = -1; // collapse
+                notifyItemChanged(position);
+            } else {
+                expandedPosition = position;
+                notifyItemChanged(oldExpanded);
+                notifyItemChanged(position);
+            }
+        });
+
+        // Avoid duplicate child views
+        holder.ll_childview.removeAllViews();
+        for (int i = 0; i < 4; i++) {
+            LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
+                    .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
+            holder.ll_childview.addView(childLayout);
         }
-    });
+    }
 
-    // Prevent duplicate children
-    holder.ll_childview.removeAllViews();
-    for (int i = 0; i < 4; i++) {
-        LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
-                .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
-        holder.ll_childview.addView(childLayout);
+    @Override
+    public int getItemCount() {
+        return accountList != null ? accountList.size() : 0;
+    }
+
+    static class AccountViewHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tv_devicetype, tv_devicemodel, tv_vpa;
+        ImageView btnMenu, ivDeviceIcon;
+        LinearLayout ll_childview;
+
+        public AccountViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivDeviceIcon = itemView.findViewById(R.id.ivDeviceIcon);
+            tvTitle = itemView.findViewById(R.id.tvTitle);
+            tv_devicetype = itemView.findViewById(R.id.tv_devicetype);
+            tv_devicemodel = itemView.findViewById(R.id.tv_devicemodel);
+            tv_vpa = itemView.findViewById(R.id.tv_vpa);
+            btnMenu = itemView.findViewById(R.id.btnMenu);
+            ll_childview = itemView.findViewById(R.id.ll_childview);
+        }
     }
 }
