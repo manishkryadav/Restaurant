@@ -6,6 +6,7 @@ import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,10 +21,10 @@ import java.util.List;
 
 public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.AccountViewHolder> {
 
-    private List<AccountDetail> accountList;
-    private Context context;
+    private final List<AccountDetail> accountList;
+    private final Context context;
 
-    // Track expanded item position (-1 means none expanded)
+    // Track the expanded position (-1 = none)
     private int expandedPosition = -1;
 
     public HistoryIOTAdapter(Context context, List<AccountDetail> accountList) {
@@ -34,59 +35,77 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
     @NonNull
     @Override
     public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.revamp_item_iothistory, parent, false);
-        return new AccountViewHolder(view);
+        return new AccountViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
         boolean isExpanded = position == expandedPosition;
 
-        // Apply current state without triggering animation here
+        // Set state without animation on bind (animation only on user click)
         holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.btnMenu.setRotation(isExpanded ? 180f : 0f);
 
+        // Inflate children only once per holder (avoid duplicates)
+        if (holder.ll_childview.getChildCount() == 0) {
+            for (int i = 0; i < 4; i++) {
+                LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
+                        .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
+                holder.ll_childview.addView(childLayout);
+            }
+        }
+
+        // Click listener (handles expand/collapse & prevents flicker)
         holder.btnMenu.setOnClickListener(v -> {
             int oldExpanded = expandedPosition;
 
             if (isExpanded) {
-                // Collapse current
+                // Collapse the current item (no notifyItemChanged)
                 expandedPosition = -1;
                 TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
                 holder.ll_childview.setVisibility(View.GONE);
                 rotateIcon(holder.btnMenu, false);
+
             } else {
-                // Collapse previously expanded
-                if (oldExpanded >= 0) {
-                    notifyItemChanged(oldExpanded);
-                }
+                // Expand the clicked item
                 expandedPosition = position;
 
+                // If there was a previously expanded item, collapse it:
+                if (oldExpanded >= 0) {
+                    // Try to get the previous ViewHolder directly (if visible)
+                    RecyclerView rv = findParentRecyclerView(holder.itemView);
+                    if (rv != null) {
+                        RecyclerView.ViewHolder oldVH = rv.findViewHolderForAdapterPosition(oldExpanded);
+
+                        if (oldVH instanceof AccountViewHolder) {
+                            // Previous item is visible — directly update its views to avoid rebind flicker
+                            AccountViewHolder oldAccountVH = (AccountViewHolder) oldVH;
+                            TransitionManager.beginDelayedTransition((ViewGroup) oldAccountVH.itemView, new AutoTransition());
+                            oldAccountVH.ll_childview.setVisibility(View.GONE);
+                            rotateIcon(oldAccountVH.btnMenu, false);
+                        } else {
+                            // Previous item is not visible — notify so it updates when scrolled into view
+                            notifyItemChanged(oldExpanded);
+                        }
+                    } else {
+                        // Could not get RecyclerView reference — fall back to notify
+                        notifyItemChanged(oldExpanded);
+                    }
+                }
+
+                // Expand current (animate)
                 TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
                 holder.ll_childview.setVisibility(View.VISIBLE);
                 rotateIcon(holder.btnMenu, true);
             }
         });
-
-        // Avoid duplicate children when reusing ViewHolder
-        holder.ll_childview.removeAllViews();
-        for (int i = 0; i < 4; i++) {
-            LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
-                    .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
-            holder.ll_childview.addView(childLayout);
-        }
     }
 
     @Override
     public int getItemCount() {
         return accountList != null ? accountList.size() : 0;
-    }
-
-    // Smoothly rotate arrow icon
-    private void rotateIcon(ImageView imageView, boolean expand) {
-        float to = expand ? 180f : 0f;
-        imageView.animate().rotation(to).setDuration(300).start();
     }
 
     static class AccountViewHolder extends RecyclerView.ViewHolder {
@@ -104,5 +123,20 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
             btnMenu = itemView.findViewById(R.id.btnMenu);
             ll_childview = itemView.findViewById(R.id.ll_childview);
         }
+    }
+
+    // Smooth rotation for arrow icon
+    private void rotateIcon(ImageView imageView, boolean expand) {
+        float to = expand ? 180f : 0f;
+        imageView.animate().rotation(to).setDuration(250).start();
+    }
+
+    // Walk up parent chain to find RecyclerView
+    private RecyclerView findParentRecyclerView(View v) {
+        ViewParent parent = v.getParent();
+        while (parent != null && !(parent instanceof RecyclerView)) {
+            parent = parent.getParent();
+        }
+        return (RecyclerView) parent;
     }
 }
