@@ -1,11 +1,13 @@
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
-
 @Override
 public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
     boolean isExpanded = position == expandedPosition;
+
+    // Animate expand/collapse
     TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
     holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+    // Rotate icon smoothly
+    holder.btnMenu.setRotation(isExpanded ? 180f : 0f);
 
     holder.btnMenu.setOnClickListener(v -> {
         int oldExpanded = expandedPosition;
@@ -19,7 +21,7 @@ public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
         }
     });
 
-    // prevent duplicate child views
+    // Prevent duplicate children
     holder.ll_childview.removeAllViews();
     for (int i = 0; i < 4; i++) {
         LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
