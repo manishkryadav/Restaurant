@@ -42,11 +42,12 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
 
     @Override
     public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
-        boolean isExpanded = position == expandedPosition;
+        final int pos = position; // capture for listener
+        boolean isExpandedNow = (pos == expandedPosition);
 
         // Set state without animation during bind
-        holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-        holder.btnMenu.setRotation(isExpanded ? 90f : 0f);
+        holder.ll_childview.setVisibility(isExpandedNow ? View.VISIBLE : View.GONE);
+        holder.btnMenu.setRotation(isExpandedNow ? 90f : 0f);
 
         // Inflate children only once per holder (avoid duplicates)
         if (holder.ll_childview.getChildCount() == 0) {
@@ -57,21 +58,23 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
             }
         }
 
+        // Replace listener each bind (safe for recycled views)
         holder.btnMenu.setOnClickListener(v -> {
             int oldExpanded = expandedPosition;
+            boolean currentlyExpanded = (expandedPosition == pos); // <-- fresh check here
 
-            if (isExpanded) {
-                // Collapse the same item if tapped again
+            if (currentlyExpanded) {
+                // Collapse the same item (tapped twice)
                 expandedPosition = -1;
                 TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
                 holder.ll_childview.setVisibility(View.GONE);
                 rotateIcon(holder.btnMenu, false);
 
             } else {
-                // Expand the clicked item
-                expandedPosition = position;
+                // Expand clicked item
+                expandedPosition = pos;
 
-                // Collapse the previously expanded item (if any)
+                // Collapse the previously expanded item if it was visible
                 if (oldExpanded >= 0) {
                     RecyclerView rv = findParentRecyclerView(holder.itemView);
                     if (rv != null) {
@@ -82,14 +85,16 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
                             oldHolder.ll_childview.setVisibility(View.GONE);
                             rotateIcon(oldHolder.btnMenu, false);
                         } else {
+                            // not visible — notify so it collapses when scrolled into view
                             notifyItemChanged(oldExpanded);
                         }
                     } else {
+                        // fallback
                         notifyItemChanged(oldExpanded);
                     }
                 }
 
-                // Expand current one
+                // Animate expanding the current one
                 TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
                 holder.ll_childview.setVisibility(View.VISIBLE);
                 rotateIcon(holder.btnMenu, true);
@@ -125,7 +130,7 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
         imageView.animate().rotation(to).setDuration(250).start();
     }
 
-    // Find parent RecyclerView
+    // Walk up parent chain to find RecyclerView
     private RecyclerView findParentRecyclerView(View v) {
         ViewParent parent = v.getParent();
         while (parent != null && !(parent instanceof RecyclerView)) {
