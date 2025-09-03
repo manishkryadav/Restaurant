@@ -1,141 +1,65 @@
-package com.sbi.upi.customerMode.modules.iot;
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-import android.content.Context;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+    <!-- Back arrow -->
+    <ImageView
+        android:id="@+id/backArrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/montserrat_medium"
+        android:text="Transaction History"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/backArrow"
+        app:layout_constraintTop_toTopOf="parent" />
 
-import com.sbi.upi.R;
-import com.sbi.upi.customerMode.common.data.models.response.banking.AccountDetail;
+    <!-- RecyclerView (no ScrollView needed) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_iot_hostory"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="56dp"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:background="@drawable/rounded_top_corners"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-import java.util.List;
+    <!-- Bottom logo -->
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/upi_logo_grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.AccountViewHolder> {
+    <!-- Error layout overlay -->
+    <include
+        android:id="@+id/errorLayout"
+        layout="@layout/view_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
-    private final List<AccountDetail> accountList;
-    private final Context context;
-
-    // Track the expanded position (-1 = none)
-    private int expandedPosition = -1;
-
-    public HistoryIOTAdapter(Context context, List<AccountDetail> accountList) {
-        this.context = context;
-        this.accountList = accountList;
-    }
-
-    @NonNull
-    @Override
-    public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.revamp_item_iothistory, parent, false);
-        return new AccountViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
-        final int pos = position; // capture for listener
-        boolean isExpandedNow = (pos == expandedPosition);
-
-        // Set state without animation during bind
-        holder.ll_childview.setVisibility(isExpandedNow ? View.VISIBLE : View.GONE);
-        holder.btnMenu.setRotation(isExpandedNow ? 90f : 0f);
-
-        // Inflate children only once per holder (avoid duplicates)
-        if (holder.ll_childview.getChildCount() == 0) {
-            for (int i = 0; i < 4; i++) {
-                LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
-                        .inflate(R.layout.layout_addview_iot, holder.ll_childview, false);
-                holder.ll_childview.addView(childLayout);
-            }
-        }
-
-        // Replace listener each bind (safe for recycled views)
-        holder.btnMenu.setOnClickListener(v -> {
-            int oldExpanded = expandedPosition;
-            boolean currentlyExpanded = (expandedPosition == pos); // <-- fresh check here
-
-            if (currentlyExpanded) {
-                // Collapse the same item (tapped twice)
-                expandedPosition = -1;
-                TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
-                holder.ll_childview.setVisibility(View.GONE);
-                rotateIcon(holder.btnMenu, false);
-
-            } else {
-                // Expand clicked item
-                expandedPosition = pos;
-
-                // Collapse the previously expanded item if it was visible
-                if (oldExpanded >= 0) {
-                    RecyclerView rv = findParentRecyclerView(holder.itemView);
-                    if (rv != null) {
-                        RecyclerView.ViewHolder oldVH = rv.findViewHolderForAdapterPosition(oldExpanded);
-                        if (oldVH instanceof AccountViewHolder) {
-                            AccountViewHolder oldHolder = (AccountViewHolder) oldVH;
-                            TransitionManager.beginDelayedTransition((ViewGroup) oldHolder.itemView, new AutoTransition());
-                            oldHolder.ll_childview.setVisibility(View.GONE);
-                            rotateIcon(oldHolder.btnMenu, false);
-                        } else {
-                            // not visible — notify so it collapses when scrolled into view
-                            notifyItemChanged(oldExpanded);
-                        }
-                    } else {
-                        // fallback
-                        notifyItemChanged(oldExpanded);
-                    }
-                }
-
-                // Animate expanding the current one
-                TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
-                holder.ll_childview.setVisibility(View.VISIBLE);
-                rotateIcon(holder.btnMenu, true);
-            }
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return accountList != null ? accountList.size() : 0;
-    }
-
-    static class AccountViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tv_devicetype, tv_devicemodel, tv_vpa;
-        ImageView btnMenu, ivDeviceIcon;
-        LinearLayout ll_childview;
-
-        public AccountViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ivDeviceIcon = itemView.findViewById(R.id.ivDeviceIcon);
-            tvTitle = itemView.findViewById(R.id.tvTitle);
-            tv_devicetype = itemView.findViewById(R.id.tv_devicetype);
-            tv_devicemodel = itemView.findViewById(R.id.tv_devicemodel);
-            tv_vpa = itemView.findViewById(R.id.tv_vpa);
-            btnMenu = itemView.findViewById(R.id.btnMenu);
-            ll_childview = itemView.findViewById(R.id.ll_childview);
-        }
-    }
-
-    // Rotate arrow smoothly (0° → 90° when expanding, 90° → 0° when collapsing)
-    private void rotateIcon(ImageView imageView, boolean expand) {
-        float to = expand ? 90f : 0f;
-        imageView.animate().rotation(to).setDuration(250).start();
-    }
-
-    // Walk up parent chain to find RecyclerView
-    private RecyclerView findParentRecyclerView(View v) {
-        ViewParent parent = v.getParent();
-        while (parent != null && !(parent instanceof RecyclerView)) {
-            parent = parent.getParent();
-        }
-        return (RecyclerView) parent;
-    }
-}
+</androidx.constraintlayout.widget.ConstraintLayout>
