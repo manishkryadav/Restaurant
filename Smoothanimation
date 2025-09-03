@@ -23,7 +23,7 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
     private List<AccountDetail> accountList;
     private Context context;
 
-    // Track expanded item
+    // Track expanded item position (-1 means none expanded)
     private int expandedPosition = -1;
 
     public HistoryIOTAdapter(Context context, List<AccountDetail> accountList) {
@@ -43,26 +43,33 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
     public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
         boolean isExpanded = position == expandedPosition;
 
-        // Animate expand/collapse
-        TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
+        // Apply current state without triggering animation here
         holder.ll_childview.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-
-        // Rotate icon smoothly
         holder.btnMenu.setRotation(isExpanded ? 180f : 0f);
 
         holder.btnMenu.setOnClickListener(v -> {
             int oldExpanded = expandedPosition;
+
             if (isExpanded) {
-                expandedPosition = -1; // collapse
-                notifyItemChanged(position);
+                // Collapse current
+                expandedPosition = -1;
+                TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
+                holder.ll_childview.setVisibility(View.GONE);
+                rotateIcon(holder.btnMenu, false);
             } else {
+                // Collapse previously expanded
+                if (oldExpanded >= 0) {
+                    notifyItemChanged(oldExpanded);
+                }
                 expandedPosition = position;
-                notifyItemChanged(oldExpanded);
-                notifyItemChanged(position);
+
+                TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView, new AutoTransition());
+                holder.ll_childview.setVisibility(View.VISIBLE);
+                rotateIcon(holder.btnMenu, true);
             }
         });
 
-        // Avoid duplicate child views
+        // Avoid duplicate children when reusing ViewHolder
         holder.ll_childview.removeAllViews();
         for (int i = 0; i < 4; i++) {
             LinearLayout childLayout = (LinearLayout) LayoutInflater.from(context)
@@ -74,6 +81,12 @@ public class HistoryIOTAdapter extends RecyclerView.Adapter<HistoryIOTAdapter.Ac
     @Override
     public int getItemCount() {
         return accountList != null ? accountList.size() : 0;
+    }
+
+    // Smoothly rotate arrow icon
+    private void rotateIcon(ImageView imageView, boolean expand) {
+        float to = expand ? 180f : 0f;
+        imageView.animate().rotation(to).setDuration(300).start();
     }
 
     static class AccountViewHolder extends RecyclerView.ViewHolder {
