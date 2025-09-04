@@ -1,0 +1,85 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:elevation="4dp"
+    android:radius="12dp"
+    android:background="#FFFFFF">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Left Side: Device Info -->
+        <LinearLayout
+            android:id="@+id/deviceInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvDeviceNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MH-02-Dx-x"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvDeviceType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Type: Car dashboard"
+                android:textColor="#444444"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDeviceModel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Model: Honda City"
+                android:textColor="#444444"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Right Side: Countdown -->
+        <FrameLayout
+            android:id="@+id/timerContainer"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true">
+
+            <!-- Circular Progress -->
+            <ProgressBar
+                android:id="@+id/progressCircular"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="false"
+                android:max="1000"
+                android:progress="1000"
+                android:rotation="270"
+                android:scaleX="-1"
+                android:progressTint="#FEE715"
+                android:backgroundTint="#DDDDDD" />
+
+            <!-- Countdown Text -->
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="30:00"
+                android:textColor="#FEE715"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:typeface="monospace" />
+
+        </FrameLayout>
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
