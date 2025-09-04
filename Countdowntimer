@@ -1,87 +1,31 @@
-private void showCountdownTimer(ViewGroup parent) {
-    long START_TIME_IN_MILLIS = 30 * 60 * 1000; // 30 minutes
+private void startCountdown(TextView tvTimer, ProgressBar progressBar, int minutes) {
+    long startTimeInMillis = minutes * 60 * 1000;
 
-    // FrameLayout to overlap ProgressBar + Icon
-    FrameLayout frameLayout = new FrameLayout(this);
-    LinearLayout.LayoutParams frameParams = new LinearLayout.LayoutParams(
-            400, 400
-    );
-    frameLayout.setLayoutParams(frameParams);
-
-    // Circular ProgressBar
-    ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-    progressBar.setMax(1000); // smooth scaling
-    progressBar.setProgress(1000);
-    progressBar.setScaleX(-1f); // clockwise
-    progressBar.setRotation(270); // start from top
-    progressBar.getProgressDrawable().setColorFilter(Color.parseColor("#FEE715"), PorterDuff.Mode.SRC_IN);
-
-    FrameLayout.LayoutParams progressParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-    );
-    frameLayout.addView(progressBar, progressParams);
-
-    // Icon
-    ImageView icon = new ImageView(this);
-    icon.setImageResource(android.R.drawable.ic_lock_idle_alarm);
-    FrameLayout.LayoutParams iconParams = new FrameLayout.LayoutParams(
-            200, 200,
-            Gravity.CENTER
-    );
-    frameLayout.addView(icon, iconParams);
-
-    // Timer Text
-    TextView timerText = new TextView(this);
-    timerText.setTextSize(36);
-    timerText.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-    timerText.setTextColor(Color.parseColor("#FEE715"));
-    timerText.setPadding(0, 40, 0, 0);
-    timerText.setText("30:00");
-
-    // Container for everything (vertical)
-    LinearLayout container = new LinearLayout(this);
-    container.setOrientation(LinearLayout.VERTICAL);
-    container.setGravity(Gravity.CENTER);
-    container.addView(frameLayout);
-    container.addView(timerText);
-
-    parent.addView(container); // attach to your activity root
-
-    // Countdown Text Update
-    CountDownTimer countDownTimer = new CountDownTimer(START_TIME_IN_MILLIS, 1000) {
+    // Countdown for text
+    CountDownTimer countDownTimer = new CountDownTimer(startTimeInMillis, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
-            int minutes = (int) (millisUntilFinished / 1000) / 60;
-            int seconds = (int) (millisUntilFinished / 1000) % 60;
-            timerText.setText(String.format("%02d:%02d", minutes, seconds));
+            int min = (int) (millisUntilFinished / 1000) / 60;
+            int sec = (int) (millisUntilFinished / 1000) % 60;
+            tvTimer.setText(String.format("%02d:%02d", min, sec));
         }
 
         @Override
         public void onFinish() {
-            timerText.setText("Time’s Up!");
-            timerText.setTextColor(Color.RED);
+            tvTimer.setText("00:00");
+            tvTimer.setTextColor(Color.RED);
             progressBar.setProgress(0);
         }
     };
     countDownTimer.start();
 
-    // Smooth Progress Animation
-    ValueAnimator progressAnimator = ValueAnimator.ofInt(1000, 0);
-    progressAnimator.setDuration(START_TIME_IN_MILLIS);
-    progressAnimator.setInterpolator(new LinearInterpolator());
-    progressAnimator.addUpdateListener(animation -> {
-        int animatedValue = (int) animation.getAnimatedValue();
-        progressBar.setProgress(animatedValue);
+    // Smooth progress animation
+    ValueAnimator animator = ValueAnimator.ofInt(1000, 0);
+    animator.setDuration(startTimeInMillis);
+    animator.setInterpolator(new LinearInterpolator());
+    animator.addUpdateListener(animation -> {
+        int value = (int) animation.getAnimatedValue();
+        progressBar.setProgress(value);
     });
-    progressAnimator.start();
-}
-
-@Override
-protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-
-    ViewGroup root = findViewById(android.R.id.content); 
-    showCountdownTimer(root); // Call the method here
+    animator.start();
 }
