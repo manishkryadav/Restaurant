@@ -1,0 +1,59 @@
+package com.sbi.upi.customerMode.modules.iot;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.sbi.upi.R;
+
+import java.util.List;
+
+public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.ChildViewHolder> {
+
+    private final List<String> childList;
+    private final OnChildClickListener listener;
+
+    public interface OnChildClickListener {
+        void onChildClick(int childPosition, String data);
+    }
+
+    public ChildAdapter(List<String> childList, OnChildClickListener listener) {
+        this.childList = childList;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ChildViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.layout_addview_iot, parent, false);
+        return new ChildViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ChildViewHolder holder, int position) {
+        String data = childList.get(position);
+        holder.tvChildTitle.setText(data);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onChildClick(position, data);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return childList != null ? childList.size() : 0;
+    }
+
+    static class ChildViewHolder extends RecyclerView.ViewHolder {
+        TextView tvChildTitle;
+        public ChildViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvChildTitle = itemView.findViewById(R.id.tvChildTitle); // must exist in layout_addview_iot
+        }
+    }
+}
